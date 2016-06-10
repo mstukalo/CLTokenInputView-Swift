@@ -112,11 +112,18 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
     }
     //var editing:Bool = false
     
+    var paddingLeft: CGFloat = 8.0 {
+        didSet {
+            self.repositionViews()
+        }
+    }
+    
     var tokens:[CLToken] = []
     var tokenViews:[CLTokenView] = []
     var textField:CLBackspaceDetectingTextField!
     var intrinsicContentHeight:CGFloat!
     var additionalTextFieldYOffset:CGFloat!
+    var additionalTokenViewYOffset:CGFloat!
     
     let HSPACE:CGFloat = 0.0
     let TEXT_FIELD_HSPACE:CGFloat = 4.0 // Note: Same as CLTokenView.PADDING_X
@@ -124,7 +131,6 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
     let MINIMUM_TEXTFIELD_WIDTH:CGFloat = 56.0
     let PADDING_TOP:CGFloat = 10.0
     let PADDING_BOTTOM:CGFloat = 10.0
-    let PADDING_LEFT:CGFloat = 8.0
     let PADDING_RIGHT:CGFloat = 16.0
     let STANDARD_ROW_HEIGHT:CGFloat = 25.0
     let FIELD_MARGIN_X:CGFloat = 4.0
@@ -138,7 +144,8 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
         self.textField.autocapitalizationType = .None
         self.textField.delegate = self
         //self.additionalTextFieldYOffset = 0.0
-        self.additionalTextFieldYOffset = 1.5
+        self.additionalTextFieldYOffset = 3
+        self.additionalTokenViewYOffset = 2.5
         self.textField.addTarget(self, action: #selector(CLTokenInputView.onTextFieldDidChange(_:)), forControlEvents: .EditingChanged)
         self.addSubview(self.textField)
         
@@ -244,7 +251,7 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
         let bounds:CGRect = self.bounds
         let rightBoundary:CGFloat = CGRectGetWidth(bounds) - PADDING_RIGHT
         var firstLineRightBoundary:CGFloat = rightBoundary
-        var curX:CGFloat = PADDING_LEFT
+        var curX:CGFloat = self.paddingLeft//PADDING_LEFT
         var curY:CGFloat = PADDING_TOP
         var totalHeight:CGFloat = STANDARD_ROW_HEIGHT
         var isOnFirstLine:Bool = true
@@ -295,7 +302,7 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
             let tokenBoundary:CGFloat = isOnFirstLine ? firstLineRightBoundary : rightBoundary
             if curX + CGRectGetWidth(tokenRect) > tokenBoundary {
                 // Need a new line
-                curX = PADDING_LEFT
+                curX = self.paddingLeft
                 curY += STANDARD_ROW_HEIGHT + VSPACE
                 totalHeight += STANDARD_ROW_HEIGHT
                 isOnFirstLine = false
@@ -303,7 +310,7 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
             
             tokenRect.origin.x = curX
             // Center our tokenView vertically within STANDARD_ROW_HEIGHT
-            tokenRect.origin.y = curY + ((STANDARD_ROW_HEIGHT - CGRectGetHeight(tokenRect)) / 2.0)
+            tokenRect.origin.y = curY + ((STANDARD_ROW_HEIGHT - CGRectGetHeight(tokenRect)) / 2.0) + self.additionalTokenViewYOffset
             tokenView.frame = tokenRect
             
             curX = CGRectGetMaxX(tokenRect) + HSPACE
@@ -315,7 +322,7 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
         var availableWidthForTextField:CGFloat = textBoundary - curX;
         if availableWidthForTextField < MINIMUM_TEXTFIELD_WIDTH {
             isOnFirstLine = false
-            curX = PADDING_LEFT + TEXT_FIELD_HSPACE
+            curX = self.paddingLeft + TEXT_FIELD_HSPACE
             curY += STANDARD_ROW_HEIGHT + VSPACE
             totalHeight += STANDARD_ROW_HEIGHT
             // Adjust the width
