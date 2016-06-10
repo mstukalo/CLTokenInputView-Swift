@@ -144,8 +144,8 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
         self.textField.autocapitalizationType = .None
         self.textField.delegate = self
         //self.additionalTextFieldYOffset = 0.0
-        self.additionalTextFieldYOffset = 3
-        self.additionalTokenViewYOffset = 2.5
+        self.additionalTextFieldYOffset = -2
+        self.additionalTokenViewYOffset = -2
         self.textField.addTarget(self, action: #selector(CLTokenInputView.onTextFieldDidChange(_:)), forControlEvents: .EditingChanged)
         self.addSubview(self.textField)
         
@@ -276,7 +276,7 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
         if !(self.fieldLabel.hidden) {
             var fieldLabelRect:CGRect = self.fieldLabel.frame
             fieldLabelRect.origin.x = curX + FIELD_MARGIN_X
-            fieldLabelRect.origin.y = curY + ((STANDARD_ROW_HEIGHT - CGRectGetHeight(fieldLabelRect) / 2.0)) - PADDING_TOP
+            fieldLabelRect.origin.y = curY //+ ((STANDARD_ROW_HEIGHT - CGRectGetHeight(fieldLabelRect) / 2.0)) - PADDING_TOP
 
             self.fieldLabel.frame = fieldLabelRect
             
@@ -310,7 +310,7 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
             
             tokenRect.origin.x = curX
             // Center our tokenView vertically within STANDARD_ROW_HEIGHT
-            tokenRect.origin.y = curY + ((STANDARD_ROW_HEIGHT - CGRectGetHeight(tokenRect)) / 2.0) + self.additionalTokenViewYOffset
+            tokenRect.origin.y = curY + self.additionalTokenViewYOffset// + ((STANDARD_ROW_HEIGHT - CGRectGetHeight(tokenRect)) / 2.0) + self.additionalTokenViewYOffset
             tokenView.frame = tokenRect
             
             curX = CGRectGetMaxX(tokenRect) + HSPACE
