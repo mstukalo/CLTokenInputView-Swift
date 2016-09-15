@@ -12,6 +12,7 @@ import UIKit
 protocol CLTokenViewDelegate {
     func tokenViewDidRequestDelete(tokenView:CLTokenView, replaceWithText replacementText:String?)
     func tokenViewDidRequestSelection(tokenView:CLTokenView)
+    func tokenViewDidHandeLongPressure(tokenView:CLTokenView)
 }
 
 class CLTokenView: UIView, UIKeyInput {
@@ -75,6 +76,10 @@ class CLTokenView: UIView, UIKeyInput {
         self.selectedLabel.text = token.displayText
         let tapRecognizer:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(CLTokenView.handleTapGestureRecognizer(_:)))
         self.addGestureRecognizer(tapRecognizer)
+        
+        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(self.handleLongPressGestureRecognizer(_:)))
+        self.addGestureRecognizer(longPressRecognizer)
+
         self.setNeedsLayout()
     }
 
@@ -108,6 +113,11 @@ class CLTokenView: UIView, UIKeyInput {
     
     func handleTapGestureRecognizer(sender:UIGestureRecognizer) {
         self.delegate?.tokenViewDidRequestSelection(self)
+    }
+    
+    func handleLongPressGestureRecognizer(sender: UIGestureRecognizer) {
+        guard sender.state == .Began else {return}
+        self.delegate?.tokenViewDidHandeLongPressure(self)
     }
     
     func setSelected(selectedBool:Bool, animated:Bool) {

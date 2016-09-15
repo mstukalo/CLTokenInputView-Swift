@@ -18,6 +18,7 @@ protocol CLTokenInputViewDelegate: class {
     func tokenInputView(aView:CLTokenInputView, tokenForText text:String) -> CLToken?
     func tokenInputView(aView:CLTokenInputView, didChangeHeightTo height:CGFloat)
     func tokenInputView(aView:CLTokenInputView, didSelectToken token: CLToken)
+    func tokenInputView(aView:CLTokenInputView, didHandleLongPressureForToken token: CLToken, tokenView: CLTokenView)
 }
 
 class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenViewDelegate {
@@ -445,6 +446,14 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
             }
         }
         self.selectTokenView(tokenView, animated:true)
+    }
+    
+    func tokenViewDidHandeLongPressure(tokenView:CLTokenView) {
+        if let index = self.tokenViews.indexOf(tokenView) {
+            if index < self.tokens.count {
+                self.delegate?.tokenInputView(self, didHandleLongPressureForToken: self.tokens[index], tokenView: tokenView)
+            }
+        }
     }
     
     func selectTokenView(tokenView:CLTokenView, animated aBool:Bool) {
