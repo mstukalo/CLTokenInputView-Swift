@@ -10,9 +10,9 @@ import Foundation
 import UIKit
 
 protocol CLTokenViewDelegate {
-    func tokenViewDidRequestDelete(tokenView:CLTokenView, replaceWithText replacementText:String?)
-    func tokenViewDidRequestSelection(tokenView:CLTokenView)
-    func tokenViewDidHandeLongPressure(tokenView:CLTokenView)
+    func tokenViewDidRequestDelete(_ tokenView:CLTokenView, replaceWithText replacementText:String?)
+    func tokenViewDidRequestSelection(_ tokenView:CLTokenView)
+    func tokenViewDidHandeLongPressure(_ tokenView:CLTokenView)
 }
 
 class CLTokenView: UIView, UIKeyInput {
@@ -52,21 +52,21 @@ class CLTokenView: UIView, UIKeyInput {
             self.label.font = font
         }
         self.label.textColor = tintColor
-        self.label.backgroundColor = UIColor.clearColor()
+        self.label.backgroundColor = UIColor.clear
         self.addSubview(label)
         
-        self.selectedBackgroundView = UIView(frame: CGRectZero)
+        self.selectedBackgroundView = UIView(frame: CGRect.zero)
         self.selectedBackgroundView.backgroundColor = tintColor
         self.selectedBackgroundView.layer.cornerRadius = 3.0
         self.addSubview(self.selectedBackgroundView)
-        self.selectedBackgroundView.hidden = true
+        self.selectedBackgroundView.isHidden = true
         
         self.selectedLabel = UILabel(frame: CGRect(x: PADDING_X, y: PADDING_Y, width: 0.0, height: 0.0))
         self.selectedLabel.font = self.label.font;
-        self.selectedLabel.textColor = UIColor.whiteColor()
-        self.selectedLabel.backgroundColor = UIColor.clearColor()
+        self.selectedLabel.textColor = UIColor.white
+        self.selectedLabel.backgroundColor = UIColor.clear
         self.addSubview(self.selectedLabel)
-        self.selectedLabel.hidden = true
+        self.selectedLabel.isHidden = true
         
         self.selected = false
         
@@ -84,19 +84,19 @@ class CLTokenView: UIView, UIKeyInput {
     }
 
     convenience init(token: CLToken, font:UIFont?) {
-        self.init(frame: CGRectZero, token: token, font: font)
+        self.init(frame: CGRect.zero, token: token, font: font)
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func intrinsicContentSize() -> CGSize {
-        let labelIntrinsicSize:CGSize = self.selectedLabel.intrinsicContentSize()
+    override var intrinsicContentSize : CGSize {
+        let labelIntrinsicSize:CGSize = self.selectedLabel.intrinsicContentSize
         return CGSize(width: Double(labelIntrinsicSize.width)+(2.0*PADDING_X), height: Double(labelIntrinsicSize.height)+(2.0*PADDING_Y))
     }
     
-    override func sizeThatFits(size: CGSize) -> CGSize {
+    override func sizeThatFits(_ size: CGSize) -> CGSize {
         let fittingSize = CGSize(width: Double(size.width)-(2.0*PADDING_X), height:Double(size.height)-(2.0*PADDING_Y))
         let labelSize = self.selectedLabel.sizeThatFits(fittingSize)
         return CGSize(width: Double(labelSize.width)+(2.0*PADDING_X), height:Double(labelSize.height)+(2.0*PADDING_Y))
@@ -111,16 +111,16 @@ class CLTokenView: UIView, UIKeyInput {
     }
     
     
-    func handleTapGestureRecognizer(sender:UIGestureRecognizer) {
+    func handleTapGestureRecognizer(_ sender:UIGestureRecognizer) {
         self.delegate?.tokenViewDidRequestSelection(self)
     }
     
-    func handleLongPressGestureRecognizer(sender: UIGestureRecognizer) {
-        guard sender.state == .Began else {return}
+    func handleLongPressGestureRecognizer(_ sender: UIGestureRecognizer) {
+        guard sender.state == .began else {return}
         self.delegate?.tokenViewDidHandeLongPressure(self)
     }
     
-    func setSelected(selectedBool:Bool, animated:Bool) {
+    func setSelected(_ selectedBool:Bool, animated:Bool) {
         if (self.selected == selectedBool) {
             return
         }
@@ -130,11 +130,11 @@ class CLTokenView: UIView, UIKeyInput {
         self.setSelectedNoCheck(selectedBool, animated: animated)
     }
     
-    func setSelectedNoCheck(selectedBool:Bool, animated:Bool) {
-        if selectedBool == true && !self.isFirstResponder() {
+    func setSelectedNoCheck(_ selectedBool:Bool, animated:Bool) {
+        if selectedBool == true && !self.isFirstResponder {
             self.becomeFirstResponder()
         }
-        else if !selectedBool && self.isFirstResponder() {
+        else if !selectedBool && self.isFirstResponder {
             self.resignFirstResponder()
         }
         
@@ -146,24 +146,24 @@ class CLTokenView: UIView, UIKeyInput {
         if animated == true {
             if self.selected == true {
                 self.selectedBackgroundView.alpha = 0.0
-                self.selectedBackgroundView.hidden = false
+                self.selectedBackgroundView.isHidden = false
                 self.selectedLabel.alpha = 0.0
-                self.selectedLabel.hidden = false
+                self.selectedLabel.isHidden = false
             }
             
-            UIView.animateWithDuration(0.25, animations: { () -> Void in
+            UIView.animate(withDuration: 0.25, animations: { () -> Void in
                 self.selectedBackgroundView.alpha = selectedAlpha
                 self.selectedLabel.alpha = selectedAlpha
                 }, completion: { (finished:Bool) -> Void in
                     if (!self.selected) {
-                        self.selectedBackgroundView.hidden = true
-                        self.selectedLabel.hidden = true
+                        self.selectedBackgroundView.isHidden = true
+                        self.selectedLabel.isHidden = true
                     }
             })
         }
         else {
-            self.selectedBackgroundView.hidden = !self.selected
-            self.selectedLabel.hidden = !self.selected
+            self.selectedBackgroundView.isHidden = !self.selected
+            self.selectedLabel.isHidden = !self.selected
         }
     }
     
@@ -177,10 +177,10 @@ class CLTokenView: UIView, UIKeyInput {
             labelString = "\(displayText),"
         }
         
-        let attributes = [ NSFontAttributeName: self.label.font, NSForegroundColorAttributeName: UIColor.lightGrayColor()]
+        let attributes = [ NSFontAttributeName: self.label.font, NSForegroundColorAttributeName: UIColor.lightGray]
         let attrString = NSMutableAttributedString(string: labelString, attributes: attributes)
         
-        let tintRange = (labelString as NSString).rangeOfString(self.displayText)
+        let tintRange = (labelString as NSString).range(of: self.displayText)
         
         attrString.setAttributes([NSForegroundColorAttributeName: tintColor], range: tintRange)
         self.label.attributedText = attrString        
@@ -194,18 +194,18 @@ class CLTokenView: UIView, UIKeyInput {
         self.backgroundView?.frame = bounds
         self.selectedBackgroundView.frame = bounds
         
-        var labelFrame = CGRectInset(bounds, CGFloat(PADDING_X), CGFloat(PADDING_Y))
+        var labelFrame = bounds.insetBy(dx: CGFloat(PADDING_X), dy: CGFloat(PADDING_Y))
         self.selectedLabel.frame = labelFrame
         labelFrame.size.width += CGFloat(PADDING_X * 2.0)
         self.label.frame = labelFrame
     }
     
     
-    func hasText() -> Bool {
+    var hasText : Bool {
         return true
     }
     
-    func insertText(text: String) {
+    func insertText(_ text: String) {
          self.delegate?.tokenViewDidRequestDelete(self, replaceWithText: text)
     }
     
@@ -213,7 +213,7 @@ class CLTokenView: UIView, UIKeyInput {
          self.delegate?.tokenViewDidRequestDelete(self, replaceWithText: nil)
     }
     
-    override func canBecomeFirstResponder() -> Bool {
+    override var canBecomeFirstResponder : Bool {
         return true
     }
     

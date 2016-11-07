@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 protocol CLBackspaceDetectingTextFieldDelegate: UITextFieldDelegate {
-    func textFieldDidDeleteBackwards(textField:UITextField)
+    func textFieldDidDeleteBackwards(_ textField:UITextField)
 }
 
 class CLBackspaceDetectingTextField: UITextField {
@@ -28,7 +28,7 @@ class CLBackspaceDetectingTextField: UITextField {
         super.deleteBackward()
     }
     
-    func textFieldDidDeleteBackwards(textField:UITextField) {
+    func textFieldDidDeleteBackwards(_ textField:UITextField) {
         
         myDelegate?.textFieldDidDeleteBackwards(textField)
         

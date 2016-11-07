@@ -8,17 +8,41 @@
 
 import Foundation
 import UIKit
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 protocol CLTokenInputViewDelegate: class {
-    func tokenInputViewDidEndEditing(aView: CLTokenInputView)
-    func tokenInputViewDidBeginEditing(aView: CLTokenInputView)
-    func tokenInputView(aView:CLTokenInputView, didChangeText text:String)
-    func tokenInputView(aView:CLTokenInputView, didAddToken token:CLToken)
-    func tokenInputView(aView:CLTokenInputView, didRemoveToken token:CLToken)
-    func tokenInputView(aView:CLTokenInputView, tokenForText text:String) -> CLToken?
-    func tokenInputView(aView:CLTokenInputView, didChangeHeightTo height:CGFloat)
-    func tokenInputView(aView:CLTokenInputView, didSelectToken token: CLToken)
-    func tokenInputView(aView:CLTokenInputView, didHandleLongPressureForToken token: CLToken, tokenView: CLTokenView)
+    func tokenInputViewDidEndEditing(_ aView: CLTokenInputView)
+    func tokenInputViewDidBeginEditing(_ aView: CLTokenInputView)
+    func tokenInputView(_ aView:CLTokenInputView, didChangeText text:String)
+    func tokenInputView(_ aView:CLTokenInputView, didAddToken token:CLToken)
+    func tokenInputView(_ aView:CLTokenInputView, didRemoveToken token:CLToken)
+    func tokenInputView(_ aView:CLTokenInputView, tokenForText text:String) -> CLToken?
+    func tokenInputView(_ aView:CLTokenInputView, didChangeHeightTo height:CGFloat)
+    func tokenInputView(_ aView:CLTokenInputView, didSelectToken token: CLToken)
+    func tokenInputView(_ aView:CLTokenInputView, didHandleLongPressureForToken token: CLToken, tokenView: CLTokenView)
 }
 
 class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenViewDelegate {
@@ -46,7 +70,7 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
                 self.fieldLabel.text = self.fieldName
                 self.fieldLabel.sizeToFit()
                 let showField:Bool = self.fieldName!.characters.count > 0
-                self.fieldLabel.hidden = !showField
+                self.fieldLabel.isHidden = !showField
                 if showField && self.fieldLabel.superview == nil {
                     self.addSubview(self.fieldLabel)
                 }
@@ -140,25 +164,25 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
     func commonInit() {
         self.textField = CLBackspaceDetectingTextField(frame: self.bounds)
         self.textField.translatesAutoresizingMaskIntoConstraints = false
-        self.textField.backgroundColor = UIColor.clearColor()
-        self.textField.keyboardType = .EmailAddress
-        self.textField.autocorrectionType = .No
-        self.textField.autocapitalizationType = .None
+        self.textField.backgroundColor = UIColor.clear
+        self.textField.keyboardType = .emailAddress
+        self.textField.autocorrectionType = .no
+        self.textField.autocapitalizationType = .none
         self.textField.delegate = self
         //self.additionalTextFieldYOffset = 0.0
         self.additionalTextFieldYOffset = -2
         self.additionalTokenViewYOffset = -2
-        self.textField.addTarget(self, action: #selector(CLTokenInputView.onTextFieldDidChange(_:)), forControlEvents: .EditingChanged)
+        self.textField.addTarget(self, action: #selector(CLTokenInputView.onTextFieldDidChange(_:)), for: .editingChanged)
         self.addSubview(self.textField)
         
-        self.fieldLabel = UILabel(frame: CGRectZero)
+        self.fieldLabel = UILabel(frame: CGRect.zero)
         self.fieldLabel.translatesAutoresizingMaskIntoConstraints = false
         self.fieldLabel.font = self.textField.font
         self.fieldLabel.textColor = self.fieldColor
         self.addSubview(self.fieldLabel)
-        self.fieldLabel.hidden = true
+        self.fieldLabel.isHidden = true
         
-        self.fieldColor = UIColor.lightGrayColor()
+        self.fieldColor = UIColor.lightGray
 
         self.intrinsicContentHeight = STANDARD_ROW_HEIGHT
         self.repositionViews()
@@ -174,15 +198,15 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
         self.commonInit()
     }
     
-    override func intrinsicContentSize() -> CGSize {
-        return CGSizeMake(UIViewNoIntrinsicMetric, max(45, self.intrinsicContentHeight))
+    override var intrinsicContentSize : CGSize {
+        return CGSize(width: UIViewNoIntrinsicMetric, height: max(45, self.intrinsicContentHeight))
     }
     
     override func tintColorDidChange() {
         self.tokenViews.forEach { $0.tintColor = self.tintColor }
     }
     
-    func addToken(token:CLToken) {
+    func addToken(_ token:CLToken) {
         if self.tokens.contains(token) {
             return
         }
@@ -207,22 +231,22 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
         
     }
     
-    func removeTokenAtIndex(index:Int) {
+    func removeTokenAtIndex(_ index:Int) {
         if index == -1 {
             return
         }
         let tokenView = self.tokenViews[index]
         tokenView.removeFromSuperview()
-        self.tokenViews.removeAtIndex(index)
+        self.tokenViews.remove(at: index)
         let removedToken = self.tokens[index]
-        self.tokens.removeAtIndex(index)
+        self.tokens.remove(at: index)
         self.delegate?.tokenInputView(self, didRemoveToken: removedToken)
         self.updatePlaceholderTextVisibility()
         self.repositionViews()
     }
     
-    func removeToken(token:CLToken) {
-        let index:Int? = self.tokens.indexOf(token)
+    func removeToken(_ token:CLToken) {
+        let index:Int? = self.tokens.index(of: token)
         if index != nil {
             self.removeTokenAtIndex(index!)
         }
@@ -251,7 +275,7 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
     
     func repositionViews() {
         let bounds:CGRect = self.bounds
-        let rightBoundary:CGFloat = CGRectGetWidth(bounds) - PADDING_RIGHT
+        let rightBoundary:CGFloat = bounds.width - PADDING_RIGHT
         var firstLineRightBoundary:CGFloat = rightBoundary
         var curX:CGFloat = self.paddingLeft//PADDING_LEFT
         var curY:CGFloat = PADDING_TOP
@@ -267,42 +291,42 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
         if self.fieldView != nil {
             var fieldViewRect:CGRect = self.fieldView!.frame
             fieldViewRect.origin.x = curX + FIELD_MARGIN_X
-            fieldViewRect.origin.y = curY + ((STANDARD_ROW_HEIGHT - CGRectGetHeight(fieldViewRect) / 2.0)) - PADDING_TOP
+            fieldViewRect.origin.y = curY + ((STANDARD_ROW_HEIGHT - fieldViewRect.height / 2.0)) - PADDING_TOP
             self.fieldView?.frame = fieldViewRect
             
-            curX = CGRectGetMaxX(fieldViewRect) + FIELD_MARGIN_X
+            curX = fieldViewRect.maxX + FIELD_MARGIN_X
            // print("fieldViewRect=\(fieldViewRect)")
         }
         
         // Position field label (if field name is set)
-        if !(self.fieldLabel.hidden) {
+        if !(self.fieldLabel.isHidden) {
             var fieldLabelRect:CGRect = self.fieldLabel.frame
             fieldLabelRect.origin.x = curX + FIELD_MARGIN_X
             fieldLabelRect.origin.y = curY //+ ((STANDARD_ROW_HEIGHT - CGRectGetHeight(fieldLabelRect) / 2.0)) - PADDING_TOP
 
             self.fieldLabel.frame = fieldLabelRect
             
-            curX = CGRectGetMaxX(fieldLabelRect) + FIELD_MARGIN_X
+            curX = fieldLabelRect.maxX + FIELD_MARGIN_X
             //print("fieldLabelRect=\(fieldLabelRect)")
         }
 
         // Position accessory view (if set)
         if self.accessoryView != nil {
             var accessoryRect:CGRect = self.accessoryView!.frame;
-            accessoryRect.origin.x = CGRectGetWidth(bounds) - PADDING_RIGHT - CGRectGetWidth(accessoryRect)
+            accessoryRect.origin.x = bounds.width - PADDING_RIGHT - accessoryRect.width
             accessoryRect.origin.y = curY;
             self.accessoryView!.frame = accessoryRect;
             
-            firstLineRightBoundary = CGRectGetMinX(accessoryRect) - HSPACE;
+            firstLineRightBoundary = accessoryRect.minX - HSPACE;
         }
 
         // Position token views
-        var tokenRect:CGRect = CGRectNull
+        var tokenRect:CGRect = CGRect.null
         for tokenView:CLTokenView in self.tokenViews {
             tokenRect = tokenView.frame
             
             let tokenBoundary:CGFloat = isOnFirstLine ? firstLineRightBoundary : rightBoundary
-            if curX + CGRectGetWidth(tokenRect) > tokenBoundary {
+            if curX + tokenRect.width > tokenBoundary {
                 // Need a new line
                 curX = self.paddingLeft
                 curY += STANDARD_ROW_HEIGHT + VSPACE
@@ -315,7 +339,7 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
             tokenRect.origin.y = curY + self.additionalTokenViewYOffset// + ((STANDARD_ROW_HEIGHT - CGRectGetHeight(tokenRect)) / 2.0) + self.additionalTokenViewYOffset
             tokenView.frame = tokenRect
             
-            curX = CGRectGetMaxX(tokenRect) + HSPACE
+            curX = tokenRect.maxX + HSPACE
         }
         
         // Always indent textfield by a little bit
@@ -339,11 +363,11 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
         self.textField.frame = textFieldRect
         
         let oldContentHeight:CGFloat = self.intrinsicContentHeight;
-        self.intrinsicContentHeight = CGRectGetMaxY(textFieldRect)+PADDING_BOTTOM;
+        self.intrinsicContentHeight = textFieldRect.maxY+PADDING_BOTTOM;
         self.invalidateIntrinsicContentSize()
         
         if oldContentHeight != self.intrinsicContentHeight {
-            self.delegate?.tokenInputView(self, didChangeHeightTo: self.intrinsicContentSize().height)
+            self.delegate?.tokenInputView(self, didChangeHeightTo: self.intrinsicContentSize.height)
         }
         self.setNeedsDisplay()
     }
@@ -365,8 +389,8 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
     
     // MARK: CLBackspaceDetectingTextFieldDelegate
     
-    func textFieldDidDeleteBackwards(textField: UITextField) {
-        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+    func textFieldDidDeleteBackwards(_ textField: UITextField) {
+        DispatchQueue.main.async { () -> Void in
             if textField.text?.characters.count == 0 {
                 let tokenView:CLTokenView? = self.tokenViews.last
                 if tokenView != nil {
@@ -379,7 +403,7 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
     
     //MARK: UITextFieldDelegate
     
-    func textFieldDidBeginEditing(textField: UITextField) {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
         //print("textFieldDidBeginEditing:")
         self.delegate?.tokenInputViewDidBeginEditing(self)
         
@@ -387,21 +411,21 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
         self.unselectAllTokenViewsAnimated(true)
     }
     
-    func textFieldDidEndEditing(textField: UITextField) {
+    func textFieldDidEndEditing(_ textField: UITextField) {
         //print("textFieldDidEndEditing:")
 
         self.delegate?.tokenInputViewDidEndEditing(self)
         self.tokenViews.last?.hideUnselectedComma = true
     }
     
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         //print("textFieldShouldReturn:")
 
         self.tokenizeTextfieldText()
         return false
     }
     
-    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         //print("textField:shouldChangeCharactersInRange:replacementString:\(string)")
 
         if string.characters.count > 0 && self.tokenizationCharacters.contains(string) {
@@ -411,35 +435,35 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
         return true
     }
     
-    func onTextFieldDidChange(sender:UITextField) {
+    func onTextFieldDidChange(_ sender:UITextField) {
        // print("onTextFieldDidChange")
         self.delegate?.tokenInputView(self, didChangeText: self.textField.text!)
     }
     
     
     func textFieldDisplayOffset() -> CGFloat {
-        return CGRectGetMinY(self.textField.frame) - PADDING_TOP;
+        return self.textField.frame.minY - PADDING_TOP;
     }
     
     func text() -> String? {
         return self.textField.text
     }
     
-    func tokenViewDidRequestDelete(tokenView:CLTokenView, replaceWithText replacementText:String?) {
+    func tokenViewDidRequestDelete(_ tokenView:CLTokenView, replaceWithText replacementText:String?) {
         self.textField.becomeFirstResponder()
         if replacementText?.characters.count > 0 {
             self.textField.text = replacementText
         }
-        let index:Int? = self.tokenViews.indexOf(tokenView)
+        let index:Int? = self.tokenViews.index(of: tokenView)
         if index == nil {
             return
         }
         self.removeTokenAtIndex(index!)
     }
     
-    func tokenViewDidRequestSelection(tokenView:CLTokenView) {
+    func tokenViewDidRequestSelection(_ tokenView:CLTokenView) {
         if tokenView.selected == true {
-            if let index = self.tokenViews.indexOf(tokenView) {
+            if let index = self.tokenViews.index(of: tokenView) {
                 if index < self.tokens.count {
                     self.delegate?.tokenInputView(self, didSelectToken: self.tokens[index])
                 }
@@ -448,15 +472,15 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
         self.selectTokenView(tokenView, animated:true)
     }
     
-    func tokenViewDidHandeLongPressure(tokenView:CLTokenView) {
-        if let index = self.tokenViews.indexOf(tokenView) {
+    func tokenViewDidHandeLongPressure(_ tokenView:CLTokenView) {
+        if let index = self.tokenViews.index(of: tokenView) {
             if index < self.tokens.count {
                 self.delegate?.tokenInputView(self, didHandleLongPressureForToken: self.tokens[index], tokenView: tokenView)
             }
         }
     }
     
-    func selectTokenView(tokenView:CLTokenView, animated aBool:Bool) {
+    func selectTokenView(_ tokenView:CLTokenView, animated aBool:Bool) {
         tokenView.setSelected(true, animated: aBool)
         for otherTokenView:CLTokenView in self.tokenViews {
             if otherTokenView != tokenView {
@@ -465,7 +489,7 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
         }
     }
     
-    func unselectAllTokenViewsAnimated(animated:Bool) {
+    func unselectAllTokenViewsAnimated(_ animated:Bool) {
         for tokenView:CLTokenView in self.tokenViews {
             tokenView.setSelected(false, animated: animated)
         }
@@ -475,7 +499,7 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
     //
     
     func isEditing() -> Bool {
-        return self.textField.editing
+        return self.textField.isEditing
     }
     
     func beginEditing() {
@@ -488,17 +512,17 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
     }
     
     //
-    override func drawRect(rect: CGRect) {
-        super.drawRect(rect)
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
         
         if self.drawBottomBorder == true {
-            let context:CGContextRef? = UIGraphicsGetCurrentContext()
-            CGContextSetStrokeColorWithColor(context, UIColor.lightGrayColor().CGColor)
-            CGContextSetLineWidth(context, 0.5)
+            let context:CGContext? = UIGraphicsGetCurrentContext()
+            context?.setStrokeColor(UIColor.lightGray.cgColor)
+            context?.setLineWidth(0.5)
             
-            CGContextMoveToPoint(context, CGRectGetWidth(self.bounds), self.bounds.size.height)
-            CGContextAddLineToPoint(context, CGRectGetWidth(bounds), bounds.size.height);
-            CGContextStrokePath(context)
+            context?.move(to: CGPoint(x: self.bounds.width, y: self.bounds.size.height))
+            context?.addLine(to: CGPoint(x: bounds.width, y: bounds.size.height));
+            context?.strokePath()
         }
     }
     
