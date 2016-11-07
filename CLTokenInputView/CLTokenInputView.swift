@@ -218,7 +218,7 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
         tokenView.tintColor = self.tintColor
         tokenView.delegate = self
         
-        let intrinsicSize:CGSize = tokenView.intrinsicContentSize()
+        let intrinsicSize:CGSize = tokenView.intrinsicContentSize
         tokenView.frame = CGRect(x: 0.0, y: 0.0, width: intrinsicSize.width, height: intrinsicSize.height)
         self.tokenViews.append(tokenView)
         self.addSubview(tokenView)
