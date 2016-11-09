@@ -421,7 +421,7 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         //print("textFieldShouldReturn:")
 
-        self.tokenizeTextfieldText()
+        _ = self.tokenizeTextfieldText()
         return false
     }
     
@@ -429,7 +429,7 @@ class CLTokenInputView: UIView, CLBackspaceDetectingTextFieldDelegate, CLTokenVi
         //print("textField:shouldChangeCharactersInRange:replacementString:\(string)")
 
         if string.characters.count > 0 && self.tokenizationCharacters.contains(string) {
-            self.tokenizeTextfieldText()
+            _ = self.tokenizeTextfieldText()
             return false
         }
         return true

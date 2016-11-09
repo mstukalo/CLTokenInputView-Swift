@@ -70,7 +70,7 @@ class CLTokenView: UIView, UIKeyInput {
         
         self.selected = false
         
-        self.displayText = token.displayText
+        self.displayText = token.displayText ?? ""
         self.hideUnselectedComma = false
         self.updateLabelAttributedText()
         self.selectedLabel.text = token.displayText
@@ -132,10 +132,10 @@ class CLTokenView: UIView, UIKeyInput {
     
     func setSelectedNoCheck(_ selectedBool:Bool, animated:Bool) {
         if selectedBool == true && !self.isFirstResponder {
-            self.becomeFirstResponder()
+            _ = self.becomeFirstResponder()
         }
         else if !selectedBool && self.isFirstResponder {
-            self.resignFirstResponder()
+            _ = self.resignFirstResponder()
         }
         
         var selectedAlpha:CGFloat = 0.0
@@ -168,13 +168,13 @@ class CLTokenView: UIView, UIKeyInput {
     }
     
     func updateLabelAttributedText() {
-        var labelString:String!
+        var labelString:String
 
         if self.hideUnselectedComma == true {
-            labelString = "\(displayText)"
+            labelString = "\(displayText ?? "")"
         }
         else {
-            labelString = "\(displayText),"
+            labelString = "\(displayText ?? ""),"
         }
         
         let attributes = [ NSFontAttributeName: self.label.font, NSForegroundColorAttributeName: UIColor.lightGray]
