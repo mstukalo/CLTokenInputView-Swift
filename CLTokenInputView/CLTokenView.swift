@@ -177,7 +177,7 @@ class CLTokenView: UIView, UIKeyInput {
             labelString = "\(displayText ?? ""),"
         }
         
-        let attributes = [ NSFontAttributeName: self.label.font, NSForegroundColorAttributeName: UIColor.lightGray]
+        let attributes: [String:Any] = [NSFontAttributeName: self.label.font, NSForegroundColorAttributeName: UIColor.lightGray]
         let attrString = NSMutableAttributedString(string: labelString, attributes: attributes)
         
         let tintRange = (labelString as NSString).range(of: self.displayText)
